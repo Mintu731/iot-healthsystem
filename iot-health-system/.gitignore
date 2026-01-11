@@ -1,0 +1,22 @@
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== IDE =====
+.vscode/
+.idea/
+.metadata/
+*.log
+
+# ===== Java / Spring =====
+target/
+*.class
+
+# ===== Node / React =====
+node_modules/
+build/
+dist/
+
+# ===== Env =====
+.env
+.env.local

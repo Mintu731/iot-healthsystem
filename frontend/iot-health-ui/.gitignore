@@ -1,0 +1,16 @@
+# Node
+node_modules/
+build/
+
+# Env
+.env
+.env.local
+.env.production
+
+# IDE
+.metadata/
+.vscode/
+.idea/
+
+# OS
+.DS_Store

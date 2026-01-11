@@ -1,0 +1,36 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+/* Make row relative for absolute positioning */
+.patient-row {
+  position: relative;
+}
+
+/* Hide delete icon by default */
+.delete-x {
+  position: absolute;
+  right: -35px;           /* OUTSIDE table border */
+  top: 50%;
+  transform: translateY(-50%);
+  color: red;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Show ❌ only on row hover */
+.patient-row:hover .delete-x {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.15);
+}
