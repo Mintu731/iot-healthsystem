@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: "https://iot-health-backend-5pjg.onrender.com",
   headers: {
     "Content-Type": "application/json",
   },

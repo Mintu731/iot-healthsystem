@@ -8,6 +8,7 @@ export default function AdminDashboard() {
   /* ---------------- STATE ---------------- */
   const [patients, setPatients] = useState([]);
   const [latestVitals, setLatestVitals] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const [showRegister, setShowRegister] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
@@ -18,8 +19,6 @@ export default function AdminDashboard() {
   const [tsChannelId, setTsChannelId] = useState("");
   const [tsReadKey, setTsReadKey] = useState("");
 
-  const ADMIN_ID = 1;
-
   /* ---------------- TOAST ---------------- */
   const showToast = (msg) => {
     setToastMessage(msg);
@@ -29,7 +28,7 @@ export default function AdminDashboard() {
   /* ---------------- LOAD LATEST VITALS ---------------- */
   const loadLatestVitals = useCallback(async (userId) => {
     try {
-      const res = await api.get(`/api/admin/logs/${ADMIN_ID}/${userId}`);
+      const res = await api.get(`/api/admin/logs/${userId}`);
       const logs = res.data.data || [];
 
       if (logs.length > 0) {
@@ -46,6 +45,7 @@ export default function AdminDashboard() {
   /* ---------------- LOAD PATIENTS ---------------- */
   const loadPatients = useCallback(async () => {
     try {
+      setLoading(true);
       const res = await api.get("/api/admin/patients");
       const list = res.data.data || [];
       setPatients(list);
@@ -53,6 +53,8 @@ export default function AdminDashboard() {
       list.forEach((p) => loadLatestVitals(p.id));
     } catch {
       alert("Failed to load patients");
+    } finally {
+      setLoading(false);
     }
   }, [loadLatestVitals]);
 
@@ -61,10 +63,10 @@ export default function AdminDashboard() {
     loadPatients();
   }, [loadPatients]);
 
-  /* ---------------- REGISTER ---------------- */
+  /* ---------------- REGISTER PATIENT ---------------- */
   const handleRegister = async () => {
     try {
-      await api.post("/api/register", {
+      await api.post("/api/admin/register", {
         fullName,
         mobileNumber,
         password,
@@ -123,150 +125,88 @@ export default function AdminDashboard() {
   /* ---------------- UI ---------------- */
   return (
     <div className="container mt-4">
-      {/* TOAST */}
       {toastMessage && (
-        <div
-          className="alert alert-success text-center"
-          style={{
-            position: "fixed",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 9999,
-            width: "320px",
-          }}
-        >
+        <div className="alert alert-success text-center position-fixed top-0 start-50 translate-middle-x mt-3">
           {toastMessage}
         </div>
       )}
 
-      {/* TOP BAR */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="d-flex justify-content-between mb-3">
         <h3>Admin Dashboard</h3>
-
         <div>
-          <button
-            className="btn btn-primary me-2"
-            onClick={() => setShowRegister(true)}
-          >
+          <button className="btn btn-primary me-2" onClick={() => setShowRegister(true)}>
             + Register Patient
           </button>
-
           <button className="btn btn-outline-danger" onClick={logout}>
             Logout
           </button>
         </div>
       </div>
 
-      {/* PATIENT TABLE */}
-      <table className="table table-bordered table-hover">
-        <thead className="table-dark">
-          <tr>
-            <th>Name</th>
-            <th>BPM</th>
-            <th>Temperature</th>
-            <th>Humidity</th>
-            <th className="text-center">Actions</th>
-          </tr>
-        </thead>
+      {loading ? (
+        <div className="text-center">Loading patients...</div>
+      ) : patients.length === 0 ? (
+        <div className="text-center text-muted">No patients found</div>
+      ) : (
+        <table className="table table-bordered table-hover">
+          <thead className="table-dark">
+            <tr>
+              <th>Name</th>
+              <th>BPM</th>
+              <th>Temperature</th>
+              <th>Humidity</th>
+              <th className="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {patients.map((p) => {
+              const vitals = latestVitals[p.id];
+              return (
+                <tr key={p.id}>
+                  <td>{p.fullName}</td>
+                  <td className={vitals ? bpmClass(vitals.bpm) : ""}>
+                    {vitals?.bpm ?? "--"}
+                  </td>
+                  <td className={vitals ? tempClass(vitals.temperature) : ""}>
+                    {vitals?.temperature ?? "--"}
+                  </td>
+                  <td>{vitals?.humidity ?? "--"}</td>
+                  <td className="text-center">
+                    <button
+                      className="btn btn-sm btn-outline-primary me-2"
+                      onClick={() => handleViewLogs(p.id)}
+                    >
+                      View Logs
+                    </button>
+                    <span
+                      style={{ cursor: "pointer", color: "red", fontSize: "20px" }}
+                      onClick={() => handleDelete(p.id)}
+                    >
+                      ❌
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
 
-        <tbody>
-          {patients.map((p) => {
-            const vitals = latestVitals[p.id];
-
-            return (
-              <tr key={p.id}>
-                <td>{p.fullName}</td>
-
-                <td className={vitals ? bpmClass(vitals.bpm) : ""}>
-                  {vitals ? vitals.bpm : "--"}
-                </td>
-
-                <td className={vitals ? tempClass(vitals.temperature) : ""}>
-                  {vitals ? vitals.temperature : "--"}
-                </td>
-
-                <td>{vitals ? vitals.humidity : "--"}</td>
-
-                <td className="text-center">
-                  <button
-                    className="btn btn-sm btn-outline-primary me-2"
-                    onClick={() => handleViewLogs(p.id)}
-                  >
-                    View Logs
-                  </button>
-
-                  <span
-                    style={{ cursor: "pointer", color: "red", fontSize: "20px" }}
-                    onClick={() => handleDelete(p.id)}
-                    title="Delete"
-                  >
-                    ❌
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-
-      {/* REGISTER MODAL */}
       {showRegister && (
-        <div
-          className="modal show d-block"
-          style={{ background: "rgba(0,0,0,0.5)" }}
-        >
+        <div className="modal show d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
           <div className="modal-dialog">
             <div className="modal-content p-3">
               <h5>Register Patient</h5>
 
-              <input
-                className="form-control mb-2"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-              />
-
-              <input
-                className="form-control mb-2"
-                placeholder="Mobile Number"
-                value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-              />
-
-              <input
-                type="password"
-                className="form-control mb-2"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-
-              <input
-                className="form-control mb-2"
-                placeholder="ThingSpeak Channel ID"
-                value={tsChannelId}
-                onChange={(e) => setTsChannelId(e.target.value)}
-              />
-
-              <input
-                className="form-control mb-3"
-                placeholder="ThingSpeak Read Key"
-                value={tsReadKey}
-                onChange={(e) => setTsReadKey(e.target.value)}
-              />
+              <input className="form-control mb-2" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+              <input className="form-control mb-2" placeholder="Mobile Number" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} />
+              <input type="password" className="form-control mb-2" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input className="form-control mb-2" placeholder="ThingSpeak Channel ID" value={tsChannelId} onChange={(e) => setTsChannelId(e.target.value)} />
+              <input className="form-control mb-3" placeholder="ThingSpeak Read Key" value={tsReadKey} onChange={(e) => setTsReadKey(e.target.value)} />
 
               <div className="text-end">
-                <button
-                  className="btn btn-secondary me-2"
-                  onClick={() => setShowRegister(false)}
-                >
-                  Cancel
-                </button>
-
-                <button className="btn btn-success" onClick={handleRegister}>
-                  Register
-                </button>
+                <button className="btn btn-secondary me-2" onClick={() => setShowRegister(false)}>Cancel</button>
+                <button className="btn btn-success" onClick={handleRegister}>Register</button>
               </div>
             </div>
           </div>
