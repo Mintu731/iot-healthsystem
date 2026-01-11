@@ -1,4 +1,0 @@
-[build]
-  base = "frontend/iot-health-ui"
-  command = "npm run build"
-  publish = "frontend/iot-health-ui/build"
