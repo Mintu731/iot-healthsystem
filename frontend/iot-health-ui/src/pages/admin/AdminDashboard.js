@@ -4,6 +4,7 @@ import api from "../../api/api";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const ADMIN_ID = 1;
 
   /* ---------------- STATE ---------------- */
   const [patients, setPatients] = useState([]);
@@ -28,8 +29,8 @@ export default function AdminDashboard() {
   /* ---------------- LOAD LATEST VITALS ---------------- */
   const loadLatestVitals = useCallback(async (userId) => {
     try {
-      const res = await api.get(`/api/admin/logs/${userId}`);
-      const logs = res.data.data || [];
+      const res = await api.get(`/api/admin/logs/${ADMIN_ID}/${userId}`);
+      const logs = res.data?.data || [];
 
       if (logs.length > 0) {
         setLatestVitals((prev) => ({
@@ -37,8 +38,8 @@ export default function AdminDashboard() {
           [userId]: logs[logs.length - 1],
         }));
       }
-    } catch {
-      console.warn("No logs for user:", userId);
+    } catch (err) {
+      console.warn("Vitals not available for user:", userId);
     }
   }, []);
 
@@ -47,11 +48,15 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       const res = await api.get("/api/admin/patients");
-      const list = res.data.data || [];
+      console.log("PATIENT API RESPONSE:", res.data);
+
+      const list = res.data?.data || [];
       setPatients(list);
 
+      // Load vitals AFTER patients load
       list.forEach((p) => loadLatestVitals(p.id));
-    } catch {
+    } catch (err) {
+      console.error("LOAD PATIENTS ERROR", err);
       alert("Failed to load patients");
     } finally {
       setLoading(false);
@@ -66,12 +71,13 @@ export default function AdminDashboard() {
   /* ---------------- REGISTER PATIENT ---------------- */
   const handleRegister = async () => {
     try {
-      await api.post("/api/admin/register", {
+      await api.post("/api/register", {
         fullName,
         mobileNumber,
         password,
         tsChannelId,
         tsReadKey,
+        role: "PATIENT",
       });
 
       setShowRegister(false);
@@ -125,16 +131,21 @@ export default function AdminDashboard() {
   /* ---------------- UI ---------------- */
   return (
     <div className="container mt-4">
+      {/* TOAST */}
       {toastMessage && (
         <div className="alert alert-success text-center position-fixed top-0 start-50 translate-middle-x mt-3">
           {toastMessage}
         </div>
       )}
 
+      {/* HEADER */}
       <div className="d-flex justify-content-between mb-3">
         <h3>Admin Dashboard</h3>
         <div>
-          <button className="btn btn-primary me-2" onClick={() => setShowRegister(true)}>
+          <button
+            className="btn btn-primary me-2"
+            onClick={() => setShowRegister(true)}
+          >
             + Register Patient
           </button>
           <button className="btn btn-outline-danger" onClick={logout}>
@@ -143,6 +154,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* TABLE */}
       {loading ? (
         <div className="text-center">Loading patients...</div>
       ) : patients.length === 0 ? (
@@ -192,21 +204,62 @@ export default function AdminDashboard() {
         </table>
       )}
 
+      {/* REGISTER MODAL */}
       {showRegister && (
-        <div className="modal show d-block" style={{ background: "rgba(0,0,0,0.5)" }}>
+        <div
+          className="modal show d-block"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+        >
           <div className="modal-dialog">
             <div className="modal-content p-3">
               <h5>Register Patient</h5>
 
-              <input className="form-control mb-2" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-              <input className="form-control mb-2" placeholder="Mobile Number" value={mobileNumber} onChange={(e) => setMobileNumber(e.target.value)} />
-              <input type="password" className="form-control mb-2" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} />
-              <input className="form-control mb-2" placeholder="ThingSpeak Channel ID" value={tsChannelId} onChange={(e) => setTsChannelId(e.target.value)} />
-              <input className="form-control mb-3" placeholder="ThingSpeak Read Key" value={tsReadKey} onChange={(e) => setTsReadKey(e.target.value)} />
+              <input
+                className="form-control mb-2"
+                placeholder="Full Name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+
+              <input
+                className="form-control mb-2"
+                placeholder="Mobile Number"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
+              />
+
+              <input
+                type="password"
+                className="form-control mb-2"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <input
+                className="form-control mb-2"
+                placeholder="ThingSpeak Channel ID"
+                value={tsChannelId}
+                onChange={(e) => setTsChannelId(e.target.value)}
+              />
+
+              <input
+                className="form-control mb-3"
+                placeholder="ThingSpeak Read Key"
+                value={tsReadKey}
+                onChange={(e) => setTsReadKey(e.target.value)}
+              />
 
               <div className="text-end">
-                <button className="btn btn-secondary me-2" onClick={() => setShowRegister(false)}>Cancel</button>
-                <button className="btn btn-success" onClick={handleRegister}>Register</button>
+                <button
+                  className="btn btn-secondary me-2"
+                  onClick={() => setShowRegister(false)}
+                >
+                  Cancel
+                </button>
+                <button className="btn btn-success" onClick={handleRegister}>
+                  Register
+                </button>
               </div>
             </div>
           </div>

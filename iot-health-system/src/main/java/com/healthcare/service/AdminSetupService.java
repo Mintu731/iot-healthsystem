@@ -22,8 +22,8 @@ public class AdminSetupService {
 
         User admin = new User();
         admin.setFullName("Admin");
-        admin.setMobileNumber("9999999999");
-        admin.setPassword("admin123"); // plain password as requested
+        admin.setMobileNumber("9515353724");
+        admin.setPassword("4525"); // plain password as requested
         admin.setRole(Role.ADMIN);
 
         userRepository.save(admin);
