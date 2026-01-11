@@ -52,4 +52,21 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
+ // ✅ GET ALL USERS (ADMIN + PATIENTS)
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
+
+        List<User> users = userService.getAllUsers();
+
+        ApiResponse<List<User>> response = new ApiResponse<>(
+                LocalDateTime.now(),
+                "SUCCESS",
+                200,
+                "All user records retrieved (including ADMIN).",
+                users
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
 }

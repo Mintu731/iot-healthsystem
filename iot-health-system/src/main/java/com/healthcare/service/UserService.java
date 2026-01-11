@@ -6,6 +6,9 @@ import com.healthcare.entity.Role;
 import com.healthcare.entity.User;
 import com.healthcare.repository.HealthLogRepository;
 import com.healthcare.repository.UserRepository;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,4 +89,8 @@ public class UserService {
         // ✅ THEN DELETE USER
         userRepository.delete(user);
     }
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
 }
