@@ -20,6 +20,9 @@ export default function Login() {
         role,
       });
 
+      // Add this to see the login data in an alert
+      alert(`Role: ${role}\nMobile: ${mobileNumber}\nPassword: ${password}`);
+
       // ✅ SAVE FULL USER OBJECT
       localStorage.setItem("user", JSON.stringify(response.data.data));
 
