@@ -3,12 +3,19 @@ package com.healthcare.controller;
 import com.healthcare.entity.User;
 import com.healthcare.response.ApiResponse;
 import com.healthcare.service.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+@CrossOrigin(
+    origins = {
+        "http://localhost:3000",
+        "https://iot-healthsystem.netlify.app"
+    }
+)
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
@@ -19,7 +26,6 @@ public class AdminController {
         this.userService = userService;
     }
 
-    // ✅ GET ALL PATIENTS (Admin excluded internally)
     @GetMapping("/patients")
     public ResponseEntity<ApiResponse<List<User>>> getPatients() {
 
@@ -36,7 +42,6 @@ public class AdminController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ DELETE PATIENT (Admin protected internally)
     @DeleteMapping("/patients/{id}")
     public ResponseEntity<ApiResponse<Void>> deletePatient(@PathVariable Long id) {
 
@@ -52,7 +57,7 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
- // ✅ GET ALL USERS (ADMIN + PATIENTS)
+
     @GetMapping("/users")
     public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
 
@@ -68,5 +73,4 @@ public class AdminController {
 
         return ResponseEntity.ok(response);
     }
-
 }

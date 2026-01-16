@@ -3,7 +3,12 @@ package com.healthcare.controller;
 import com.healthcare.service.AdminSetupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+@CrossOrigin(
+	    origins = {
+	        "http://localhost:3000",
+	        "https://iot-healthsystem.netlify.app"
+	    }
+	)
 @RestController
 @RequestMapping("/api/setup")
 public class SetupController {

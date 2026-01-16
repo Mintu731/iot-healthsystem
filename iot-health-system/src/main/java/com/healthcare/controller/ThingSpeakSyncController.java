@@ -5,7 +5,12 @@ import com.healthcare.service.HealthLogService;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-
+@CrossOrigin(
+	    origins = {
+	        "http://localhost:3000",
+	        "https://iot-healthsystem.netlify.app"
+	    }
+	)
 @RestController
 @RequestMapping("/api/sync")
 public class ThingSpeakSyncController {
