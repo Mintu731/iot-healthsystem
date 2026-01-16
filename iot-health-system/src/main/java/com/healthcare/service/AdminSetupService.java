@@ -14,20 +14,20 @@ public class AdminSetupService {
         this.userRepository = userRepository;
     }
 
-    public String createAdminOnce() {
+    public String overwriteAdmin() {
 
-        if (userRepository.existsByRole(Role.ADMIN)) {
-            return "ADMIN already exists";
-        }
+        // Fetch existing admin or create new one
+        User admin = userRepository.findByRole(Role.ADMIN)
+                .orElse(new User());
 
-        User admin = new User();
+        // Always overwrite details
         admin.setFullName("Admin");
         admin.setMobileNumber("9515353724");
-        admin.setPassword("4525"); // plain password as requested
+        admin.setPassword("1234"); // plain password as requested
         admin.setRole(Role.ADMIN);
 
         userRepository.save(admin);
 
-        return "ADMIN created successfully";
+        return "ADMIN details overwritten successfully";
     }
 }

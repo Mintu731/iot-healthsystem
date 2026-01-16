@@ -16,6 +16,6 @@ public class SetupController {
 
     @PostMapping("/create-admin")
     public ResponseEntity<String> createAdmin() {
-        return ResponseEntity.ok(adminSetupService.createAdminOnce());
+        return ResponseEntity.ok(adminSetupService.overwriteAdmin());
     }
 }
