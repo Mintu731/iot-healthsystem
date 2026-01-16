@@ -17,7 +17,7 @@ public class CorsFilterConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:3000",
-                "https://iot-healthsystem.netlify.app"
+                "https://iotfrontend.netlify.app"
         ));
 
         config.setAllowedMethods(List.of(
